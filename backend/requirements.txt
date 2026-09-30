@@ -1,0 +1,4 @@
+pytest
+# only needed so the tests can run the reference code in reference/
+numpy
+pandas
