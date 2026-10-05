@@ -4,6 +4,7 @@ import sys
 
 from flask import Flask, jsonify, request, send_from_directory
 from flask_login import LoginManager
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import Config
 from models import User, db
@@ -23,6 +24,8 @@ def setup_logging(app):
 def create_app():
     app = Flask(__name__, static_folder=None)
     app.config.from_object(Config)
+    # behind Nginx on EC2: trust one proxy hop for the client IP in logs
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
     setup_logging(app)
     db.init_app(app)
 
@@ -74,9 +77,23 @@ def create_app():
 
     @app.cli.command('seed')
     def seed_command():
-        """Create tables and demo accounts."""
+        """Create tables and demo accounts (local testing only)."""
         from seed import seed
         seed()
+
+    @app.cli.command('init-db')
+    def init_db_command():
+        """Create tables and an 'admin' user with ADMIN_PASSWORD (production)."""
+        db.create_all()
+        password = os.getenv('ADMIN_PASSWORD')
+        if not password or len(password) < 8:
+            raise SystemExit('Set ADMIN_PASSWORD (8+ characters) in .env first.')
+        if not User.query.filter_by(username='admin').first():
+            admin = User(username='admin', name='Administrator', role='admin')
+            admin.set_password(password)
+            db.session.add(admin)
+            db.session.commit()
+        print('Tables ready. Log in as admin.')
 
     return app
 

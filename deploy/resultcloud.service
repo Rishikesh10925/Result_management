@@ -1,0 +1,13 @@
+[Unit]
+Description=ResultCloud (Gunicorn)
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/ResultCloud/backend
+EnvironmentFile=/home/ec2-user/ResultCloud/.env
+ExecStart=/home/ec2-user/ResultCloud/backend/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 --access-logfile - app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
