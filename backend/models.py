@@ -64,8 +64,8 @@ class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
     sem = db.Column(db.Integer, nullable=False)
-    sgpa = db.Column(db.Float, nullable=False)
-    cgpa = db.Column(db.Float)
+    sgpa = db.Column(db.Double, nullable=False)  # DOUBLE: full precision, CGPA reuses it
+    cgpa = db.Column(db.Double)
     published = db.Column(db.Boolean, default=False)
     pdf_key = db.Column(db.String(255))  # S3 object key of the latest marksheet
     __table_args__ = (db.UniqueConstraint('student_id', 'sem'),)

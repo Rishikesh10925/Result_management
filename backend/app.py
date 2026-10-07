@@ -85,6 +85,17 @@ def create_app():
     def init_db_command():
         """Create tables and an 'admin' user with ADMIN_PASSWORD (production)."""
         db.create_all()
+        if db.engine.dialect.name == 'mysql':
+            # tables made before sgpa/cgpa became DOUBLE (FLOAT lost digits)
+            db.session.execute(db.text('ALTER TABLE semester_results MODIFY sgpa DOUBLE NOT NULL, MODIFY cgpa DOUBLE NULL'))
+            db.session.commit()
+        # recalculate stored results from the saved marks (restores full precision)
+        from models import Result
+        from services import result_service
+        for row in Result.query.order_by(Result.student_id, Result.sem).all():
+            res = result_service.calculate(row.student, row.sem)
+            row.sgpa, row.cgpa = res['sgpa'], res['cgpa']
+            db.session.commit()
         password = os.getenv('ADMIN_PASSWORD')
         if not password or len(password) < 8:
             raise SystemExit('Set ADMIN_PASSWORD (8+ characters) in .env first.')
