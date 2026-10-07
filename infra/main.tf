@@ -132,6 +132,7 @@ resource "aws_db_instance" "mysql" {
   engine_version         = "8.0"
   instance_class         = var.db_instance_class
   allocated_storage      = 20
+  storage_type           = "gp2" # free tier storage type
   db_name                = "resultcloud"
   username               = "admin"
   password               = var.db_password
