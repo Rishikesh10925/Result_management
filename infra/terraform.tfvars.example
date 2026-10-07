@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored - never commit it.
+repo_url       = "https://github.com/<your-username>/ResultCloud.git"
+db_password    = "ChangeMe-Db-2026"
+admin_password = "ChangeMe-Admin-2026"
+
+# optional
+# ssh_cidr = "49.36.10.20/32"
+# key_name = "my-keypair"

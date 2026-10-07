@@ -8,3 +8,9 @@ node_modules/
 frontend/dist/
 *.pem
 *.db
+
+# terraform (state + tfvars contain passwords)
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars

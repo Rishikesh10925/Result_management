@@ -21,6 +21,7 @@ backend/
   tests/                       engine tests + reference comparison tests
 frontend/                      React (Vite) app
 deploy/                        EC2 setup script, Gunicorn service, Nginx, CloudWatch agent, IAM policy
+infra/                         Terraform: creates all the AWS resources in one command
 docs/AWS_DEPLOYMENT.md         step-by-step AWS console guide
 reference/                     original source_code.py and app.py, unchanged
 ```
@@ -77,12 +78,14 @@ Then run `python seed.py` again. On AWS the same settings point to Amazon RDS.
 
 ```bash
 cd backend
+pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
 ## AWS
 
-See **[docs/AWS_DEPLOYMENT.md](docs/AWS_DEPLOYMENT.md)**.
+Quickest: `cd infra && terraform apply` (creates everything) and `terraform destroy` (removes it).
+Full guide, with Terraform and console options: **[docs/AWS_DEPLOYMENT.md](docs/AWS_DEPLOYMENT.md)**.
 
 | Service | Used for |
 |---|---|

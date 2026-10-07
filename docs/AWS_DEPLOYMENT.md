@@ -11,10 +11,57 @@ Internet ──► EC2 (Nginx :80 ─► Gunicorn ─► Flask + React build)
                └──► CloudWatch     (CPU/health metrics, app + Nginx logs)
 ```
 
+There are two ways to build this. Both create exactly the same setup:
+
+- **Option A: Terraform** (recommended): one command creates everything, one command deletes it.
+- **Option B: AWS console**: click through steps 1–7 by hand. Good for understanding each service.
+
 > Tip: sign in to the console as an IAM user with admin rights rather than the root account
 > (IAM → Users → Create user → attach `AdministratorAccess`, enable console access).
 
 ---
+
+## Option A: Terraform
+
+`infra/` describes every resource: S3 bucket, IAM role and policy, security groups, RDS MySQL,
+the EC2 instance, CloudWatch log groups, two alarms and a dashboard.
+
+**One-time setup on your PC**
+
+1. Install the AWS CLI (`winget install Amazon.AWSCLI`) and Terraform (`winget install Hashicorp.Terraform`).
+2. In the console: **IAM → Users → Create user** (for example `terraform`), attach `AdministratorAccess`,
+   then **Security credentials → Create access key → Command Line Interface**.
+3. Run `aws configure` and enter the key, the secret, region `ap-south-1` and output `json`.
+   The keys stay on your PC in `~/.aws/credentials`, never in the project.
+4. Push this repo to GitHub as a **public** repo. EC2 clones it on first boot.
+
+**Deploy**
+
+```bash
+cd infra
+copy terraform.tfvars.example terraform.tfvars    # then edit: repo_url, db_password, admin_password
+terraform init
+terraform plan        # shows what will be created
+terraform apply       # type "yes"; takes about 10-15 minutes (RDS is the slow part)
+```
+
+At the end it prints `app_url`, the bucket name, the RDS endpoint and the CloudWatch dashboard link.
+The EC2 instance then needs about 5 more minutes on first boot to install and build the app. Open `app_url`
+and log in as **Admin** with `admin` / your `admin_password`.
+
+If the site doesn't come up, look at **EC2 → instance → Actions → Monitor and troubleshoot → Get system log**,
+or SSH in (set `ssh_cidr` and `key_name`) and run `sudo tail -100 /var/log/cloud-init-output.log`.
+
+**Delete everything after the demo:** `terraform destroy`
+
+> `terraform.tfvars` and `terraform.tfstate` hold your passwords and are gitignored. Don't share them.
+> The passwords are also passed to EC2 at first boot, so only give trusted people access to the AWS account.
+
+Then continue at **step 8 (Test the whole system)** below.
+
+---
+
+## Option B: AWS console
 
 ## 1. S3 — bucket for marksheets
 
