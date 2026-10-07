@@ -7,8 +7,3 @@ python-dotenv==1.2.3
 boto3==1.43.105
 reportlab==5.0.1
 gunicorn==26.2.0
-
-# tests (numpy/pandas are only needed to run the reference code)
-pytest
-numpy
-pandas

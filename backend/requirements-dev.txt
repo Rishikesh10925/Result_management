@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest
+# only needed to run the reference code in reference/
+numpy
+pandas
